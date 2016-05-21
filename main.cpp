@@ -6,10 +6,22 @@
 #define SCREEN_HEIGHT 50
 #define SCREEN_WIDTH 50
 
+enum GMode
+{
+	MainMenu = 0,
+	Renderer,
+};
+
+class GameStateC
+{
+	GameStateC();
+	
+};
 class ControllerC
 {
-	ControllerC(){};
+	ControllerC(){mode_m = MainMenu;};
 	//Game State
+	GMode mode_m;
 	void init();
 	public:
 	ControllerC* getInstance();
