@@ -1,4 +1,5 @@
 #include<iostream>
+#include<curses.h>
 #include<cstring>
 #include<stdio.h>
 #include<cmath>
