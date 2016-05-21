@@ -6,6 +6,24 @@
 #define SCREEN_HEIGHT 50
 #define SCREEN_WIDTH 50
 
+class ControllerC
+{
+	ControllerC(){};
+	//Game State
+	void init();
+	public:
+	ControllerC* getInstance();
+};
+
+ControllerC* gcntrl = NULL;
+
+ControllerC* ControllerC::getInstance()
+{
+	if (gcntrl != NULL)
+		gcntrl = new ControllerC();
+	return gcntrl;	
+}
+
 int main()
 {
 	std::cout<<"lets get started"<<std::endl;
