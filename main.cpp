@@ -30,10 +30,22 @@ class GameStateC
 //DRAWABLESC********
 class DrawablesC
 {
-	protected:
-	DrawablesC():start_x(0),start_y(0),width(0),height(0){isDirty=FALSE;};
-	DrawablesC(int x,int y):start_x(x),start_y(y),width(0),height(0){isDirty=FALSE;};
+	public:
+	DrawablesC():start_x(0),start_y(0)
+	{
+		width = 0;
+		height = 0;
+		isDirty=FALSE;
+	};
+	DrawablesC(int x,int y):start_x(x),start_y(y)
+	{
+		width = 0;
+		height = 0;
+		isDirty=FALSE;
+	};
 	DrawablesC(int x,int y,int w,int h):start_x(x),start_y(y),width(w),height(h){isDirty=FALSE;};
+
+	protected:
 	void setWidth(int w)
 	{
 		width = w;
@@ -70,7 +82,7 @@ class DrawablesC
 	}
 
 	public:
-	virtual void draw();
+	virtual void draw() = 0;
 	//virtual move();
 	bool getDirty()
 	{
@@ -88,11 +100,15 @@ class DrawablesC
 //********
 
 //MENUC********
-class MenuC:DrawablesC
+class MenuC : public DrawablesC
 {
 	static const int bufferWidth = 5;
 	static const int bufferHeight = 2;
 
+	std::list<std::string> list_Entries;// Later make a class for each entry
+	size_t max_stringlen;
+	
+	public:
 	MenuC():DrawablesC(){max_stringlen = 0;};
 	MenuC(int x,int y):DrawablesC(x,y)
 	{
@@ -100,11 +116,6 @@ class MenuC:DrawablesC
 		setWidth(bufferWidth);
 		setHeight(bufferHeight);
 	};
-
-	std::list<std::string> list_Entries;// Later make a class for each entry
-	size_t max_stringlen;
-	
-	public:
 	void addEntry(std::string str)
 	{
 		size_t  strLen = str.size();
@@ -193,9 +204,14 @@ class ControllerC
 	}
 	//Game State
 	GMode mode_m;
-	RendererC* grndr = NULL;
+	RendererC* grndr;
 	public:
 	void init();
+	void refresh(DrawablesC* drw)
+	{
+		grndr->add(drw);
+		grndr->refresh();
+	}
 	void clear();
 	static ControllerC* getInstance();
 };
@@ -204,7 +220,7 @@ ControllerC* gcntrl = NULL;
 
 ControllerC* ControllerC::getInstance()
 {
-	if (gcntrl != NULL)
+	if (gcntrl == NULL)
 		gcntrl = new ControllerC();
 	return gcntrl;	
 }
@@ -227,23 +243,26 @@ void ControllerC::clear()
 int main()
 {
 	(ControllerC::getInstance())->init();
-	WINDOW* myWin;
 	int height = 25;
 	int width = 50;
 	int start_y = (LINES-height)/2;
 	int start_x = (COLS-width)/2;
 	printw("Press F1 to exit");
 	refresh();
-	myWin = newwin(height,width,start_y,start_x);
-	box(myWin,0,0);	//Draw Box around window
-	wrefresh(myWin);
+
+	MenuC* firstMenu = new MenuC(start_x,start_y);
+	firstMenu->addEntry("Start");
+	
+	firstMenu->addEntry("Options");
+	firstMenu->addEntry("Exit");
+	
+	(ControllerC::getInstance())->refresh((DrawablesC*) firstMenu);
 
 	int ch;
 	while((ch = getch()) != KEY_F(1))
 	{
 	}
 	
-	delwin(myWin);
 	
 	(ControllerC::getInstance())->clear();
 	return 0;
