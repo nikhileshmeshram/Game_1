@@ -3,6 +3,7 @@
 #include<cstring>
 #include<stdio.h>
 #include<cmath>
+#include<list> // common
 
 #define SCREEN_HEIGHT 50
 #define SCREEN_WIDTH 50
@@ -50,10 +51,23 @@ void ControllerC::clear()
 	endwin();
 }
 
-
-class Renderer
+class DrawablesC
 {
+	DrawablesC(){};
+	// virtual draw();
 };
+
+class RendererC
+{
+	RendererC(){};
+	std::list<DrawablesC> drawList;
+	public:
+	void init();
+	void clear();
+	void refresh();
+};
+
+
 
 int main()
 {
