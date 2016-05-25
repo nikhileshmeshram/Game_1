@@ -9,6 +9,12 @@
 #define SCREEN_HEIGHT 50
 #define SCREEN_WIDTH 50
 
+
+//forward declarations
+class ControllerC;
+
+
+
 enum GMode
 {
 	MainMenu = 0,
@@ -48,24 +54,15 @@ class MenuC:DrawablesC
 //RENDERERC********
 class RendererC
 {
+	friend ControllerC;
 	RendererC(){};
 	std::list<DrawablesC> drawList;
 
 	public:
-	static RendererC* getInstance();
 	void init();
 	void clear();
 	void refresh();
 };
-
-RendererC* grndr = NULL;
-
-RendererC* RendererC::getInstance()
-{
-	if (grndr != NULL)
-		grndr = new RendererC();
-	return grndr;	
-}
 
 void RendererC::init()
 {
@@ -83,9 +80,19 @@ void RendererC::clear()
 //CONTROLLERC********
 class ControllerC
 {
-	ControllerC(){mode_m = MainMenu;};
+	ControllerC()
+	{
+		mode_m = MainMenu;
+		grndr = new RendererC();
+	};
+	~ControllerC()
+	{
+		if (grndr)
+			delete grndr;
+	}
 	//Game State
 	GMode mode_m;
+	RendererC* grndr = NULL;
 	public:
 	void init();
 	void clear();
@@ -103,12 +110,12 @@ ControllerC* ControllerC::getInstance()
 
 void ControllerC::init()
 {
-	RendererC::getInstance()->init();
+	grndr->init();
 }
 	
 void ControllerC::clear()
 {
-	RendererC::getInstance()->clear();
+	grndr->clear();
 }
 //********
 
