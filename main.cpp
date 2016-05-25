@@ -31,23 +31,104 @@ class GameStateC
 class DrawablesC
 {
 	protected:
-	DrawablesC():start_x(0),start_y(0){};
-	DrawablesC(int x,int y):start_x(x),start_y(y){};
-	// virtual draw();
-	// virtual move();
+	DrawablesC():start_x(0),start_y(0),width(0),height(0){isDirty=FALSE;};
+	DrawablesC(int x,int y):start_x(x),start_y(y),width(0),height(0){isDirty=FALSE;};
+	DrawablesC(int x,int y,int w,int h):start_x(x),start_y(y),width(w),height(h){isDirty=FALSE;};
+	void setWidth(int w)
+	{
+		width = w;
+	};
+
+	void setHeight(int h)
+	{
+		height = h;
+	};
+	
+	void setDirty(bool b)
+	{
+		isDirty = b;
+	}
+		
+	int getHeight()
+	{
+		return height;
+	}
+
+	int getWidth()
+	{
+		return width;
+	}
+	
+	int getStartX()
+	{
+		return start_x;
+	}
+
+	int getStartY()
+	{
+		return start_y;
+	}
+
+	public:
+	virtual void draw();
+	//virtual move();
+	bool getDirty()
+	{
+		return isDirty;
+	}
+
+
 	private:
 	int start_x;
 	int start_y;
+	int width;
+	int height;
+	bool isDirty;
 };
 //********
 
 //MENUC********
 class MenuC:DrawablesC
 {
-	MenuC():DrawablesC(){};
-	MenuC(int x, int y):DrawablesC(x,y){};
+	static const int bufferWidth = 5;
+	static const int bufferHeight = 2;
 
-	std::list<std::string> Entries;// Later make a class for each entry
+	MenuC():DrawablesC(){max_stringlen = 0;};
+	MenuC(int x,int y):DrawablesC(x,y)
+	{
+		max_stringlen = 0;
+		setWidth(bufferWidth);
+		setHeight(bufferHeight);
+	};
+
+	std::list<std::string> list_Entries;// Later make a class for each entry
+	size_t max_stringlen;
+	
+	public:
+	void addEntry(std::string str)
+	{
+		size_t  strLen = str.size();
+		if (strLen > max_stringlen)
+			max_stringlen = str.size();
+
+		list_Entries.push_back(str);
+
+		setWidth(bufferWidth+max_stringlen);
+		setHeight(bufferHeight+list_Entries.size());
+		//Need to redraw
+		setDirty(TRUE);
+	}
+	
+	//Need an undraw too
+	void draw()
+	{
+		//For now use window to create box, otherwise a line can also be used
+		WINDOW* myWin = newwin(getHeight(),getWidth(),getStartY(),getStartX());
+		box(myWin,0,0);	//Draw Box around window
+		wrefresh(myWin);
+		delwin(myWin);
+		//Need to add entries too
+	}
 };
 //********
 
@@ -56,12 +137,32 @@ class RendererC
 {
 	friend ControllerC;
 	RendererC(){};
-	std::list<DrawablesC> drawList;
+	std::list<DrawablesC*> drawList;
 
 	public:
 	void init();
 	void clear();
-	void refresh();
+	void refresh()
+	{
+		//TODO Need to maintain a global isDirty for renderer
+		//if not dirty return
+		
+		//Iterate through the drawables and undraw and draw them if they are dirty
+		for (std::list<DrawablesC*>::iterator it=drawList.begin(); it != drawList.end(); ++it)
+		{
+			if ((*it)->getDirty())
+			{
+				//undraw
+				//draw
+				(*it)->draw();
+			}
+		}
+	}
+
+	void add(DrawablesC* drwObj)
+	{
+		drawList.push_back(drwObj);
+	}
 };
 
 void RendererC::init()
