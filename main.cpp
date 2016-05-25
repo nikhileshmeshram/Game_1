@@ -19,6 +19,52 @@ class GameStateC
 	GameStateC();
 	
 };
+
+//DRAWABLESC********
+class DrawablesC
+{
+	DrawablesC(){};
+	// virtual draw();
+	// virtual move();
+};
+//********
+
+//RENDERERC********
+class RendererC
+{
+	RendererC(){};
+	std::list<DrawablesC> drawList;
+
+	public:
+	static RendererC* getInstance();
+	void init();
+	void clear();
+	void refresh();
+};
+
+RendererC* grndr = NULL;
+
+RendererC* RendererC::getInstance()
+{
+	if (grndr != NULL)
+		grndr = new RendererC();
+	return grndr;	
+}
+
+void RendererC::init()
+{
+	initscr();	//Intializes Ncurses module
+	cbreak();	//Disable line bufferring
+	keypad(stdscr,TRUE);	//Allows special function keys
+}
+
+void RendererC::clear()
+{
+	endwin();
+}
+//********
+
+//CONTROLLERC********
 class ControllerC
 {
 	ControllerC(){mode_m = MainMenu;};
@@ -41,31 +87,16 @@ ControllerC* ControllerC::getInstance()
 
 void ControllerC::init()
 {
-	initscr();	//Intializes Ncurses module
-	cbreak();	//Disable line bufferring
-	keypad(stdscr,TRUE);	//Allows special function keys
+	RendererC::getInstance()->init();
 }
 	
 void ControllerC::clear()
 {
-	endwin();
+	RendererC::getInstance()->clear();
 }
+//********
 
-class DrawablesC
-{
-	DrawablesC(){};
-	// virtual draw();
-};
 
-class RendererC
-{
-	RendererC(){};
-	std::list<DrawablesC> drawList;
-	public:
-	void init();
-	void clear();
-	void refresh();
-};
 
 
 
@@ -89,8 +120,7 @@ int main()
 	}
 	
 	delwin(myWin);
-	endwin();
 	
-//		(ControllerC::getInstance())->clear();
+	(ControllerC::getInstance())->clear();
 	return 0;
 }
