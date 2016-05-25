@@ -2,8 +2,9 @@
 #include<ncurses.h>
 #include<cstring>
 #include<stdio.h>
-#include<cmath>
+#include<cmath> // common
 #include<list> // common
+#include<string> // common
 
 #define SCREEN_HEIGHT 50
 #define SCREEN_WIDTH 50
@@ -23,9 +24,24 @@ class GameStateC
 //DRAWABLESC********
 class DrawablesC
 {
-	DrawablesC(){};
+	protected:
+	DrawablesC():start_x(0),start_y(0){};
+	DrawablesC(int x,int y):start_x(x),start_y(y){};
 	// virtual draw();
 	// virtual move();
+	private:
+	int start_x;
+	int start_y;
+};
+//********
+
+//MENUC********
+class MenuC:DrawablesC
+{
+	MenuC():DrawablesC(){};
+	MenuC(int x, int y):DrawablesC(x,y){};
+
+	std::list<std::string> Entries;// Later make a class for each entry
 };
 //********
 
