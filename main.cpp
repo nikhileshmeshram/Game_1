@@ -46,6 +46,7 @@ class DrawablesC
 	DrawablesC(int x,int y,int w,int h):start_x(x),start_y(y),width(w),height(h){isDirty=FALSE;};
 
 	protected:
+	//This is ugly find a better way
 	void setWidth(int w)
 	{
 		width = w;
@@ -102,7 +103,7 @@ class DrawablesC
 //MENUC********
 class MenuC : public DrawablesC
 {
-	static const int bufferWidth = 5;
+	static const int bufferWidth = 2; //keep even for aesthetics
 	static const int bufferHeight = 2;
 
 	std::list<std::string> list_Entries;// Later make a class for each entry
@@ -124,7 +125,7 @@ class MenuC : public DrawablesC
 
 		list_Entries.push_back(str);
 
-		setWidth(bufferWidth+max_stringlen);
+		setWidth(2*bufferWidth+max_stringlen+2/*for border*/);
 		setHeight(bufferHeight+list_Entries.size());
 		//Need to redraw
 		setDirty(TRUE);
@@ -136,9 +137,15 @@ class MenuC : public DrawablesC
 		//For now use window to create box, otherwise a line can also be used
 		WINDOW* myWin = newwin(getHeight(),getWidth(),getStartY(),getStartX());
 		box(myWin,0,0);	//Draw Box around window
+		int padx = bufferWidth;
+		int ix = 1;
+		std::string spaces = std::string(padx,' ');
+		for (std::list<std::string>::iterator it=list_Entries.begin(); it != list_Entries.end(); ++it,++ix)
+		{
+			mvwprintw(myWin,ix,1,(spaces+*it).c_str());
+		}
 		wrefresh(myWin);
 		delwin(myWin);
-		//Need to add entries too
 	}
 };
 //********
@@ -207,11 +214,16 @@ class ControllerC
 	RendererC* grndr;
 	public:
 	void init();
-	void refresh(DrawablesC* drw)
+	void refresh()
 	{
-		grndr->add(drw);
 		grndr->refresh();
 	}
+
+	void track(DrawablesC* drw)
+	{
+		grndr->add(drw);
+	}
+
 	void clear();
 	static ControllerC* getInstance();
 };
@@ -252,12 +264,16 @@ int main()
 
 	MenuC* firstMenu = new MenuC(start_x,start_y);
 	firstMenu->addEntry("Start");
-	
+	firstMenu->addEntry("Options");
+	firstMenu->addEntry("Options");
+	firstMenu->addEntry("Options");
 	firstMenu->addEntry("Options");
 	firstMenu->addEntry("Exit");
 	
-	(ControllerC::getInstance())->refresh((DrawablesC*) firstMenu);
 
+	(ControllerC::getInstance())->track((DrawablesC*) firstMenu);
+
+	(ControllerC::getInstance())->refresh();
 	int ch;
 	while((ch = getch()) != KEY_F(1))
 	{
