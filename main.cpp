@@ -264,10 +264,10 @@ int main()
 
 	MenuC* firstMenu = new MenuC(start_x,start_y);
 	firstMenu->addEntry("Start");
-	firstMenu->addEntry("Options");
-	firstMenu->addEntry("Options");
-	firstMenu->addEntry("Options");
-	firstMenu->addEntry("Options");
+	firstMenu->addEntry("Options 1");
+	firstMenu->addEntry("Options 2");
+	firstMenu->addEntry("Options 3");
+	firstMenu->addEntry("Options Tree Fiddy");
 	firstMenu->addEntry("Exit");
 	
 
